@@ -73,6 +73,32 @@ namespace OpenTokSDK
     }
 
     /**
+     * Defines values for the layout type in function StartArchive when outputMode is <code>OutputMode.COMPOSED</code>
+     */
+    public enum LayoutType
+    {
+        /**
+         * Best fit layout type.
+         */
+        BestFit,
+        /**
+         * Horizontal layout type.
+         */
+        HorizontalPresentation,
+        /**
+         * Horizontal layout type.
+         */
+        VerticalPresentation,
+        /**
+         * Picture in picture layout type.
+         */
+        Pip,
+        /**
+         * Custom layout type.
+         */
+        Custom
+    }
+    /**
     * Represents an archive of an OpenTok session.
     */
     public class Archive
