@@ -258,14 +258,13 @@ namespace OpenTokSDK
          * @param resolution The resolution for the archive. The default for <code>OutputMode.COMPOSED</code>
          * is "640x480". You cannot specify the resolution for <code>OutputMode.INDIVIDUAL</code>.
          * 
-         * @param layoutType Defines values for the layout type in function StartArchive when outputMode is <code>OutputMode.COMPOSED</code>
-         * 
-         * @param stylesheet property of the layout resource will apply to a virtual DOM, when creating <code>OutputMode.COMPOSED</code> archive and layoutType is <code>LayoutType.Custom</code>
+         * @param layout The layout that you want to use for your archive. If <code>Type</code> is set to <code>LayoutType.custom</code> you must
+         * provide a StyleSheet string to Vonage how to layout your archive.
          * 
          * @return The Archive object. This object includes properties defining the archive,
          * including the archive ID.
          */
-        public Archive StartArchive(string sessionId, string name = "", bool hasVideo = true, bool hasAudio = true, OutputMode outputMode = OutputMode.COMPOSED, string resolution = null, LayoutType? layoutType = null, string stylesheet = null)
+        public Archive StartArchive(string sessionId, string name = "", bool hasVideo = true, bool hasAudio = true, OutputMode outputMode = OutputMode.COMPOSED, string resolution = null, ArchiveLayout layout = null)
         {
             if (String.IsNullOrEmpty(sessionId))
             {
@@ -282,23 +281,16 @@ namespace OpenTokSDK
             {
                 data.Add("resolution", resolution);
             }
-            if (outputMode.Equals(OutputMode.INDIVIDUAL) && layoutType != null)
+            if (layout != null)
             {
-                throw new OpenTokArgumentException("LayoutType can't be specified for Individual Archives");
-            }
-            else if (outputMode.Equals(OutputMode.COMPOSED) && layoutType != null)
-            {
-                var layout = new Dictionary<string, object>() { { "type", layoutType.ToString() } };
-                if (layoutType != LayoutType.Custom && !string.IsNullOrWhiteSpace(stylesheet))
+                if (layout?.Type == LayoutType.custom && string.IsNullOrEmpty(layout?.StyleSheet) || 
+                    layout?.Type!=LayoutType.custom && !string.IsNullOrEmpty(layout?.StyleSheet))
                 {
-                    throw new OpenTokArgumentException("stylesheet can't be specified for not custom layout type");
-                }
-                if (!string.IsNullOrWhiteSpace(stylesheet))
-                {
-                    layout.Add("stylesheet", stylesheet);
+                    throw new OpenTokArgumentException("Could not set layout, stylesheet must be set if and only if type is custom");
                 }
                 data.Add("layout", layout);
             }
+            
             string response = Client.Post(url, headers, data);
             return OpenTokUtils.GenerateArchive(response, ApiKey, ApiSecret, OpenTokServer);
         }
